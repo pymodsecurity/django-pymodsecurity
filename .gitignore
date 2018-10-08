@@ -1,0 +1,5 @@
+environment.yml
+.pytest_cache
+.vscode
+tmp/
+__pycache__
