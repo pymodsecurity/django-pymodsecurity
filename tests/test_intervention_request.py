@@ -1,6 +1,8 @@
 import pytest
 
-def test_intervention_request_processConnection(middleware, get_response, request_factory):
+
+def test_intervention_request_processConnection(middleware, get_response,
+                                                request_factory):
     request = request_factory.get('/api/users')
     addr = request.META['REMOTE_ADDR']
 
@@ -17,7 +19,9 @@ def test_intervention_request_processConnection(middleware, get_response, reques
     assert not response == get_response.mock_response
     assert response.status_code == 403
 
-def test_intervention_request_redirect(middleware, get_response, request_factory):
+
+def test_intervention_request_redirect(middleware, get_response,
+                                       request_factory):
     request = request_factory.get('/api/users')
     addr = request.META['REMOTE_ADDR']
 
@@ -35,6 +39,7 @@ def test_intervention_request_redirect(middleware, get_response, request_factory
     assert response.status_code == 302
     assert response.url == 'http://www.example.com/failed.html'
 
+
 def test_intervention_request_uri(middleware, get_response, request_factory):
     request = request_factory.get('/attack.php')
 
@@ -51,7 +56,9 @@ def test_intervention_request_uri(middleware, get_response, request_factory):
     assert not response == get_response.mock_response
     assert response.status_code == 403
 
-def test_intervention_request_headers(middleware, get_response, request_factory):
+
+def test_intervention_request_headers(middleware, get_response,
+                                      request_factory):
     request = request_factory.get('/api/users', HTTP_USER_AGENT='nikto')
 
     get_response.mock_response = 'Original response'
@@ -67,12 +74,14 @@ def test_intervention_request_headers(middleware, get_response, request_factory)
     assert not response == get_response.mock_response
     assert response.status_code == 403
 
+
 def test_intervention_request_body(middleware, get_response, request_factory):
     request = request_factory.post(
-        '/api/users',
-        {'hello':'world', 'attack':True},
-        content_type='application/json'
-    )
+        '/api/users', {
+            'hello': 'world',
+            'attack': True
+        },
+        content_type='application/json')
 
     get_response.mock_response = 'Original response'
 
@@ -87,4 +96,3 @@ def test_intervention_request_body(middleware, get_response, request_factory):
 
     assert not response == get_response.mock_response
     assert response.status_code == 403
-

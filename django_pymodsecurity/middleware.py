@@ -11,6 +11,7 @@ SETTINGS_NAMES = {
     'rule_files': 'MODSECURITY_RULE_FILES',
 }
 
+
 class PyModSecurityMiddleware(object):
     def __init__(self, get_response):
         '''
@@ -47,7 +48,8 @@ class PyModSecurityMiddleware(object):
             for rule_file in glob.glob(pattern, recursive=True):
                 rules_count = self.rules.loadFromUri(rule_file)
                 if rules_count < 0:
-                    msg = '[ModSecurity] Error trying to load rule file %s. %s' % (rule_file, self.rules.getParserError())
+                    msg = '[ModSecurity] Error trying to load rule file %s. %s' % (
+                        rule_file, self.rules.getParserError())
                     print(msg)
                     logger.warning(msg)
                 else:
@@ -72,9 +74,10 @@ class PyModSecurityMiddleware(object):
         make an intervention
         '''
         meta = request.META
-        transaction.processConnection(
-            meta['REMOTE_ADDR'], int(request.get_port()),
-            meta['SERVER_NAME'], int(meta['SERVER_PORT']))
+        transaction.processConnection(meta['REMOTE_ADDR'],
+                                      int(request.get_port()),
+                                      meta['SERVER_NAME'],
+                                      int(meta['SERVER_PORT']))
 
         response = self.process_intervention(transaction)
         if response is not None:
@@ -106,20 +109,30 @@ class PyModSecurityMiddleware(object):
             if key.startswith('HTTP_'):
                 yield key[5:], value
 
-    def process_response(self, request, response, transaction):
+    def process_response(self, request, original_response, transaction):
         '''
         Process a response and checks with modsecurity if it's safe or if it should
         make an intervention
         '''
-        intervention = self.process_intervention(transaction)
+        for field, value in original_response.items():
+            transaction.addResponseHeader(field, value)
 
-        # No intervention means safe response.
-        # Just return what we've got
-        if intervention is None:
+        transaction.processResponseHeaders(original_response.status_code,
+                                           'HTTP/1.1')
+
+        response = self.process_intervention(transaction)
+        if response is not None:
             return response
 
-        # ModSecurity needs to fix the response
-        return HttpResponse()
+        transaction.appendResponseBody(original_response.getvalue())
+        transaction.processResponseBody()
+
+        response = self.process_intervention(transaction)
+        if response is not None:
+            return response
+
+        # No intervention so far, assume the response is safe
+        return original_response
 
     def process_intervention(self, transaction):
         '''
