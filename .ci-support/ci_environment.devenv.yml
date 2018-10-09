@@ -1,0 +1,10 @@
+name: django-pymodsecurity
+
+includes:
+  - {{ root }}/../environment.devenv.yml
+
+environment:
+  PYTHONPATH:
+    - {{ root }}/../
+  LD_LIBRARY_PATH:
+    - $CONDA_PREFIX/lib

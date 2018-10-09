@@ -1,0 +1,6 @@
+pytest==3.8.2
+pytest-runner==4.2
+pytest-timeout==1.3.2
+pytest-mock==1.10.0
+pytest-xdist==1.23.2
+pybind11>=2.2
