@@ -8,6 +8,8 @@ dependencies:
   - pytest-mock
   - pytest-xdist
   - pytest-timeout
+  - pytest-django
   - yapf
   - isort
   - pylint
+  - invoke

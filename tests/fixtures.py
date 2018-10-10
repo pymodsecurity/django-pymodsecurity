@@ -1,13 +1,10 @@
 import os
 
 import pytest
-from django.conf import settings
 from django.test import RequestFactory, override_settings
 
 import ModSecurity
 from django_pymodsecurity.middleware import PyModSecurityMiddleware
-
-settings.configure()
 
 
 class GetResponseMock(object):
