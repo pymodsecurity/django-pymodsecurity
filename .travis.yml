@@ -29,13 +29,12 @@ before_install:
   else
     bash .ci-support/install-modsecurity.sh
     pip install -r .ci-support/requirements.txt
-    pip install pymodsecurity
   fi
 install:
 - |
   python setup.py install
 script:
-- pytest tests -n auto
+- python -m pytest tests -n auto
 deploy:
   provider: pypi
   user: GustavoKatel

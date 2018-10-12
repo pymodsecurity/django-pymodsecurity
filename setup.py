@@ -11,6 +11,6 @@ setup(
     packages=['django_pymodsecurity'],
     install_requires=[
         'Django',
-        'pymodsecurity >= 0.02'
+        'pymodsecurity'
     ],
     zip_safe=False)
