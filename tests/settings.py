@@ -65,3 +65,14 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+
+# Rule Files
+MODSECURITY_RULE_FILES = [
+    'tests/data/config-logs.conf',
+    'tests/data/basic_rules.conf'
+]
+
+# Rule lines to be imported directly
+MODSECURITY_RULES = [
+    'SecRuleEngine DetectionOnly'
+]

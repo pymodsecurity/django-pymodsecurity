@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 SETTINGS_NAMES = {
     'rule_files': 'MODSECURITY_RULE_FILES',
+    'rule_lines': 'MODSECURITY_RULES',
 }
 
 
@@ -30,15 +31,22 @@ class PyModSecurityMiddleware(object):
         if isinstance(self.rule_files, str):
             self.rule_files = [self.rule_files]
 
+        self.rule_lines = getattr(settings, SETTINGS_NAMES['rule_lines'], None)
+        if isinstance(self.rule_lines, list):
+            self.rule_lines = '\n'.join(self.rule_lines)
+
         self._rules_count = 0
         if self.rule_files is not None:
-            self.load_rules(self.rule_files)
+            self.load_rule_files(self.rule_files)
+
+        if self.rule_lines is not None:
+            self.load_rules(self.rule_lines)
 
     @property
     def rules_count(self):
         return self._rules_count
 
-    def load_rules(self, rule_files):
+    def load_rule_files(self, rule_files):
         '''
         Process a list of files (can be a list of globs) and loads into modsecurity
         :param list(str) rule_files
@@ -54,6 +62,22 @@ class PyModSecurityMiddleware(object):
                     logger.warning(msg)
                 else:
                     self._rules_count += rules_count
+
+    def load_rules(self, rules):
+        '''
+        Process rules
+        :param str: rules
+        '''
+        if rules is None or not len(rules) > 0:
+            return
+
+        rules_count = self.rules.load(rules)
+        if rules_count < 0:
+            msg = '[ModSecurity] Error trying to load rules: %s' % self.rules.getParserError()
+            print(msg)
+            logger.warning(msg)
+        else:
+            self._rules_count += rules_count
 
     def __call__(self, request):
         transaction = ModSecurity.Transaction(self.modsecurity, self.rules)
