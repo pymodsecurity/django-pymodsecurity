@@ -3,6 +3,9 @@ name: django-pymodsecurity
 includes:
   - {{ root }}/../environment.devenv.yml
 
+dependencies:
+  - codecov
+
 environment:
   PYTHONPATH:
     - {{ root }}/../

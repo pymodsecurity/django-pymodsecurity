@@ -19,6 +19,7 @@ env:
   global:
   - CONDA_VERSION=4.5.11-Linux-x86_64
   - MODSECURITY_VERSION=3.0.2
+
 before_install:
 - |
   if [ -n "$CONDA_PY" ]; then
@@ -30,11 +31,17 @@ before_install:
     bash .ci-support/install-modsecurity.sh
     pip install -r .ci-support/requirements.txt
   fi
+
 install:
 - |
   python setup.py install
+
 script:
-- python -m pytest tests -n auto
+- python -m pytest tests -n auto --cov=django_pymodsecurity
+
+after_success:
+- codecov
+
 deploy:
   provider: pypi
   user: GustavoKatel

@@ -9,6 +9,7 @@ dependencies:
   - pytest-xdist
   - pytest-timeout
   - pytest-django
+  - pytest-cov
   - yapf
   - isort
   - pylint
