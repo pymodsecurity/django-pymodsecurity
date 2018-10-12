@@ -2,11 +2,13 @@ import pytest
 
 from django_pymodsecurity import middleware
 
+
 def test_request_no_intervention(client):
     response = client.get('/test_app/a')
 
     assert response.status_code == 200
     assert response.content == b'Path: a'
+
 
 def test_request_intervention(client, settings):
     setattr(

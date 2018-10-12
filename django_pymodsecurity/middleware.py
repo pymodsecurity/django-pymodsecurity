@@ -73,7 +73,8 @@ class PyModSecurityMiddleware(object):
 
         rules_count = self.rules.load(rules)
         if rules_count < 0:
-            msg = '[ModSecurity] Error trying to load rules: %s' % self.rules.getParserError()
+            msg = '[ModSecurity] Error trying to load rules: %s' % self.rules.getParserError(
+            )
             print(msg)
             logger.warning(msg)
         else:

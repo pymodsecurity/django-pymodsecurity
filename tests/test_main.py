@@ -15,6 +15,7 @@ def test_load_rule_files(get_response, mocker, settings):
         middleware, ['tests/data/*.conf'])
     assert middleware.rules_count == 6
 
+
 def test_no_load_rule_files(get_response, mocker, settings):
     from django_pymodsecurity.middleware import PyModSecurityMiddleware
     from django_pymodsecurity.middleware import SETTINGS_NAMES
@@ -57,6 +58,7 @@ def test_load_rules(get_response, mocker, settings):
 
     assert middleware.rules_count == 8
 
+
 def test_str_load_rules(get_response, mocker, settings):
     from django_pymodsecurity.middleware import PyModSecurityMiddleware
     from django_pymodsecurity.middleware import SETTINGS_NAMES
@@ -71,6 +73,7 @@ def test_str_load_rules(get_response, mocker, settings):
     middleware = PyModSecurityMiddleware(get_response)
 
     assert middleware.rules_count == 8
+
 
 def test_no_intervention(middleware, get_response, request_factory):
     request = request_factory.get('/api/users')
