@@ -25,6 +25,7 @@ class PyModSecurityMiddleware(object):
         self.get_response = get_response
 
         self.modsecurity = ModSecurity.ModSecurity()
+        self.modsecurity.setServerLogCb(self.modsecurity_log_callback)
         self.rules = ModSecurity.Rules()
 
         self.rule_files = getattr(settings, SETTINGS_NAMES['rule_files'], None)
@@ -42,6 +43,9 @@ class PyModSecurityMiddleware(object):
         if self.rule_lines is not None:
             self.load_rules(self.rule_lines)
 
+    def modsecurity_log_callback(self, data, msg):
+        logger.info(msg)
+
     @property
     def rules_count(self):
         return self._rules_count
@@ -58,7 +62,6 @@ class PyModSecurityMiddleware(object):
                 if rules_count < 0:
                     msg = '[ModSecurity] Error trying to load rule file %s. %s' % (
                         rule_file, self.rules.getParserError())
-                    print(msg)
                     logger.warning(msg)
                 else:
                     self._rules_count += rules_count
@@ -75,7 +78,6 @@ class PyModSecurityMiddleware(object):
         if rules_count < 0:
             msg = '[ModSecurity] Error trying to load rules: %s' % self.rules.getParserError(
             )
-            print(msg)
             logger.warning(msg)
         else:
             self._rules_count += rules_count
