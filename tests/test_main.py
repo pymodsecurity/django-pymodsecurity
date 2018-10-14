@@ -117,3 +117,30 @@ def test_log(get_response, request_factory, mocker):
     assert obj == middleware
     assert data is None
     assert 'log test ok' in msg
+
+
+def test_log_when_load_rule_files_fail(middleware, mocker):
+    mocker.spy(middleware.logger, 'warning')
+
+    assert middleware.load_rule_files('tests/data/invalid-conf.conf') == 0
+
+    assert middleware.logger.warning.call_count > 0
+    msg = middleware.logger.warning.call_args_list[0][0][0]
+
+    assert '[ModSecurity] Error trying to load rule file' in msg
+
+
+def test_log_when_load_rules_fail(middleware, mocker):
+    mocker.spy(middleware.logger, 'warning')
+
+    assert middleware.load_rules('invalid sec rule here') < 0
+
+    assert middleware.logger.warning.call_count > 0
+    msg = middleware.logger.warning.call_args_list[0][0][0]
+
+    assert '[ModSecurity] Error trying to load rules' in msg
+
+
+@pytest.mark.parametrize('rules', [None, ''])
+def test_load_rules_params(middleware, rules):
+    assert middleware.load_rules(rules) == 0

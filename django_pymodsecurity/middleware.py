@@ -5,8 +5,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 import ModSecurity
 
-logger = logging.getLogger(__name__)
-
 SETTINGS_NAMES = {
     'rule_files': 'MODSECURITY_RULE_FILES',
     'rule_lines': 'MODSECURITY_RULES',
@@ -22,6 +20,8 @@ class PyModSecurityMiddleware(object):
 
         :param callable get_response
         '''
+        self.logger = logging.getLogger(__name__)
+
         self.get_response = get_response
 
         self.modsecurity = ModSecurity.ModSecurity()
@@ -44,7 +44,7 @@ class PyModSecurityMiddleware(object):
             self.load_rules(self.rule_lines)
 
     def modsecurity_log_callback(self, data, msg):
-        logger.info(msg)
+        self.logger.info(msg)
 
     @property
     def rules_count(self):
@@ -54,7 +54,10 @@ class PyModSecurityMiddleware(object):
         '''
         Process a list of files (can be a list of globs) and loads into modsecurity
         :param list(str) rule_files
+        :rtype: int
+        :return the total rules that were loaded
         '''
+        before_count = self.rules_count
         import glob
         for pattern in rule_files:
             for rule_file in glob.glob(pattern, recursive=True):
@@ -62,25 +65,31 @@ class PyModSecurityMiddleware(object):
                 if rules_count < 0:
                     msg = '[ModSecurity] Error trying to load rule file %s. %s' % (
                         rule_file, self.rules.getParserError())
-                    logger.warning(msg)
+                    self.logger.warning(msg)
                 else:
                     self._rules_count += rules_count
+
+        return self.rules_count - before_count
 
     def load_rules(self, rules):
         '''
         Process rules
         :param str: rules
+        :rtype: int
+        :return the total rules that were loaded
         '''
         if rules is None or not len(rules) > 0:
-            return
+            return 0
 
         rules_count = self.rules.load(rules)
         if rules_count < 0:
             msg = '[ModSecurity] Error trying to load rules: %s' % self.rules.getParserError(
             )
-            logger.warning(msg)
+            self.logger.warning(msg)
         else:
             self._rules_count += rules_count
+
+        return rules_count
 
     def __call__(self, request):
         transaction = ModSecurity.Transaction(self.modsecurity, self.rules)
@@ -168,14 +177,16 @@ class PyModSecurityMiddleware(object):
         :rtype HttpResponse:
         '''
         intervention = ModSecurity.ModSecurityIntervention()
+
+        if intervention is None:
+            return None
+
         if transaction.intervention(intervention):
-            if intervention is None:
-                return None
+            if intervention.log is not None:
+                self.logger.info(intervention.log)
 
             if not intervention.disruptive:
                 return None
-
-            # TODO process intervention logs
 
             if intervention.url is not None:
                 response = HttpResponseRedirect(intervention.url)
