@@ -2,7 +2,7 @@ name: django-pymodsecurity
 
 dependencies:
   - django=2.1.2
-  - pymodsecurity=0.0.2
+  - pymodsecurity=0.0.3
   - pytest
   - pytest-runner
   - pytest-mock

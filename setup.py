@@ -9,8 +9,5 @@ setup(
     author_email='gbritosampaio@gmail.com',
     license='MIT',
     packages=['django_pymodsecurity'],
-    install_requires=[
-        'Django',
-        'pymodsecurity'
-    ],
+    install_requires=['Django', 'pymodsecurity'],
     zip_safe=False)
