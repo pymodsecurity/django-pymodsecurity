@@ -9,7 +9,7 @@ This middleware adds the modsecurity capabilities to the django framework.
 
 ## Dependencies
 
-- pymodsecurity >= 0.0.3
+- pymodsecurity >= 0.0.4
 - django >= 2.1.2
 
 ## HOWTO

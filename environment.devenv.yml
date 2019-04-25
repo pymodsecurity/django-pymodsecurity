@@ -1,8 +1,9 @@
 name: django-pymodsecurity
 
 dependencies:
+  - python={{ os.environ.get('CONDA_PY', '3.7') }}
   - django=2.1.2
-  - pymodsecurity=0.0.3
+  - pymodsecurity=0.0.4
   - pytest
   - pytest-runner
   - pytest-mock
